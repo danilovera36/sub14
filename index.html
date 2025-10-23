@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Campeonato Sub 14</title>
+    <!-- Tailwind (estilos) -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- React y ReactDOM -->
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    <!-- Babel para usar JSX en el navegador -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      body { background: linear-gradient(135deg, #f0fdf4, #ffffff, #fef2f2); }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      function App() {
+        const [autenticado, setAutenticado] = React.useState(false);
+        const [usuario, setUsuario] = React.useState('');
+        const [password, setPassword] = React.useState('');
+        const [mostrarLogin, setMostrarLogin] = React.useState(false);
+
+        const [grupos, setGrupos] = React.useState({
+          1: [
+            { equipo: 'ROSARIO ATLETICO', pj: 4, pg: 3, pe: 1, pp: 0, gf: 14, gc: 5, dg: 9, pts: 10 },
+            { equipo: 'URUGUAYO - CENTRO COLONIA', pj: 3, pg: 2, pe: 0, pp: 1, gf: 8, gc: 7, dg: 1, pts: 6 },
+            { equipo: 'COLONIA VALDENSE', pj: 3, pg: 1, pe: 1, pp: 1, gf: 8, gc: 9, dg: -1, pts: 4 },
+            { equipo: 'NACIONAL - N.HELVECIA', pj: 3, pg: 0, pe: 2, pp: 1, gf: 8, gc: 9, dg: -1, pts: 2 },
+            { equipo: 'PLAZA - TARARIRAS', pj: 3, pg: 0, pe: 0, pp: 3, gf: 3, gc: 11, dg: -8, pts: 0 }
+          ],
+          2: [
+            { equipo: 'ARTESANO - COL. SUIZA', pj: 2, pg: 2, pe: 0, pp: 0, gf: 13, gc: 1, dg: 12, pts: 6 },
+            { equipo: 'INDEPENDIENTE - J.LACAZE', pj: 2, pg: 1, pe: 0, pp: 1, gf: 5, gc: 7, dg: -2, pts: 3 },
+            { equipo: 'NACIONAL - TARARIRAS', pj: 2, pg: 0, pe: 1, pp: 1, gf: 2, gc: 4, dg: -2, pts: 1 },
+            { equipo: 'SANTA EMILIA - CARDONA', pj: 2, pg: 0, pe: 1, pp: 1, gf: 0, gc: 8, dg: -8, pts: 1 }
+          ],
+          3: [
+            { equipo: 'ESTUDIANTES EL COLLA - ROSARIO', pj: 2, pg: 2, pe: 0, pp: 0, gf: 9, gc: 0, dg: 9, pts: 6 },
+            { equipo: 'NACIONAL - CARDONA', pj: 2, pg: 1, pe: 0, pp: 1, gf: 5, gc: 3, dg: 2, pts: 3 },
+            { equipo: 'PEÑAROL DE OMBUES - CENTRO COLONIA', pj: 2, pg: 1, pe: 0, pp: 1, gf: 2, gc: 6, dg: -4, pts: 3 },
+            { equipo: 'COLEGIALES - ROSARIO', pj: 2, pg: 0, pe: 0, pp: 2, gf: 1, gc: 8, dg: -7, pts: 0 }
+          ],
+          4: [
+            { equipo: 'ESPARTA - N.HELVECIA', pj: 2, pg: 2, pe: 0, pp: 0, gf: 8, gc: 1, dg: 7, pts: 6 },
+            { equipo: 'NACIONAL DE OMBUES - CENTRO COLONIA', pj: 2, pg: 1, pe: 0, pp: 1, gf: 5, gc: 4, dg: 1, pts: 3 },
+            { equipo: 'REFORMERS - J.LACAZE', pj: 2, pg: 0, pe: 1, pp: 1, gf: 3, gc: 6, dg: -3, pts: 1 },
+            { equipo: 'POMPEYA - TARARIRAS', pj: 2, pg: 0, pe: 1, pp: 1, gf: 2, gc: 7, dg: -5, pts: 1 }
+          ]
+        });
+
+        const [resultado, setResultado] = React.useState({
+          grupo: 1, equipo1: '', goles1: '', equipo2: '', goles2: ''
+        });
+
+        const handleLogin = (e) => {
+          e.preventDefault();
+          if (usuario === 'dvera' && password === 'danilo22') {
+            setAutenticado(true);
+            setMostrarLogin(false);
+            setUsuario('');
+            setPassword('');
+          } else {
+            alert('Usuario o contraseña incorrectos');
+            setPassword('');
+          }
+        };
+
+        const handleLogout = () => setAutenticado(false);
+
+        const agregarResultado = () => {
+          if (!resultado.equipo1 || !resultado.equipo2 || resultado.goles1 === '' || resultado.goles2 === '') {
+            alert('Por favor completa todos los campos');
+            return;
+          }
+          const goles1 = parseInt(resultado.goles1, 10);
+          const goles2 = parseInt(resultado.goles2, 10);
+
+          const nuevosGrupos = { ...grupos };
+          const grupo = nuevosGrupos[resultado.grupo];
+
+          const idx1 = grupo.findIndex(e => e.equipo === resultado.equipo1);
+          const idx2 = grupo.findIndex(e => e.equipo === resultado.equipo2);
+          if (idx1 === -1 || idx2 === -1) {
+            alert('Equipos no encontrados');
+            return;
+          }
+          grupo[idx1].pj += 1; grupo[idx1].gf += goles1; grupo[idx1].gc += goles2; grupo[idx1].dg = grupo[idx1].gf - grupo[idx1].gc;
+          grupo[idx2].pj += 1; grupo[idx2].gf += goles2; grupo[idx2].gc += goles1; grupo[idx2].dg = grupo[idx2].gf - grupo[idx2].gc;
+
+          if (goles1 > goles2) { grupo[idx1].pg += 1; grupo[idx1].pts += 3; grupo[idx2].pp += 1; }
+          else if (goles2 > goles1) { grupo[idx2].pg += 1; grupo[idx2].pts += 3; grupo[idx1].pp += 1; }
+          else { grupo[idx1].pe += 1; grupo[idx1].pts += 1; grupo[idx2].pe += 1; grupo[idx2].pts += 1; }
+
+          grupo.sort((a,b) => b.pts - a.pts || b.dg - a.dg || b.gf - a.gf);
+          setGrupos(nuevosGrupos);
+          setResultado({ grupo: resultado.grupo, equipo1: '', goles1: '', equipo2: '', goles2: '' });
+        };
+
+        const obtenerClasificados = () => {
+          const primeros = [];
+          const segundos = [];
+          [1,2,3,4].forEach(num => {
+            const g = grupos[num];
+            if (g[0]) primeros.push({
+              grupo: num, equipo: g[0].equipo, pts: g[0].pts, pj: g[0].pj,
+              promedio: (g[0].pj ? (g[0].pts/g[0].pj).toFixed(3) : '0.000'),
+              dg: g[0].dg, gf: g[0].gf
+            });
+            if (g[1]) segundos.push({
+              grupo: num, equipo: g[1].equipo, pts: g[1].pts, pj: g[1].pj,
+              promedio: (g[1].pj ? (g[1].pts/g[1].pj).toFixed(3) : '0.000'),
+              dg: g[1].dg, gf: g[1].gf
+            });
+          });
+          const ord = (a,b) => parseFloat(b.promedio) - parseFloat(a.promedio) || b.dg - a.dg || b.gf - a.gf;
+          primeros.sort(ord); segundos.sort(ord);
+          return [...primeros, ...segundos];
+        };
+
+        const obtenerCrucesCuartos = () => {
+          const cls = obtenerClasificados();
+          if (cls.length < 8) return [];
+          return [
+            { partido: 1, equipo1: cls[0], equipo2: cls[7] },
+            { partido: 2, equipo1: cls[1], equipo2: cls[6] },
+            { partido: 3, equipo1: cls[2], equipo2: cls[5] },
+            { partido: 4, equipo1: cls[3], equipo2: cls[4] },
+          ];
+        };
+
+        return (
+          <div className="min-h-screen p-4 relative">
+            {/* Botón Admin discreto */}
+            <div className="fixed top-4 left-4 z-50">
+              {!autenticado ? (
+                <button onClick={() => setMostrarLogin(!mostrarLogin)}
+                        className="w-10 h-10 bg-gray-200 hover:bg-gray-300 rounded-full text-gray-500 text-xs transition shadow-md opacity-50 hover:opacity-100"
+                        title="Acceso Administrador">🔒</button>
+              ) : (
+                <button onClick={handleLogout}
+                        className="w-10 h-10 bg-green-600 hover:bg-green-700 rounded-full text-white text-xs transition shadow-md"
+                        title="Cerrar Sesión">✓</button>
+              )}
+            </div>
+
+            <div className="max-w-7xl mx-auto">
+              {/* Header con logos */}
+              <div className="bg-white rounded-xl shadow-lg p-8 mb-8 border-l-8 border-r-8 border-green-600">
+                <div className="flex justify-center items-center gap-6 mb-2">
+                  <img src="images/CEEC.png" alt="CEEC" className="w-20 h-20 object-contain"/>
+                  <div className="flex-1 text-center">
+                    <h1 className="text-4xl md:text-5xl font-bold text-gray-800">CAMPEONATO SUB 14</h1>
+                    <p className="text-gray-600 mt-1">Fase de Grupos</p>
+                  </div>
+                  <img src="images/colonia.png" alt="Federación Colonia" className="w-20 h-20 object-contain"/>
+                </div>
+              </div>
+
+              {/* Modal Login */}
+              {mostrarLogin && !autenticado && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 p-4">
+                  <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Acceso Administrador</h2>
+                    <form onSubmit={handleLogin} className="space-y-4">
+                      <div>
+                        <label className="block text-gray-700 font-medium mb-2">Usuario</label>
+                        <input type="text" value={usuario} onChange={(e)=>setUsuario(e.target.value)}
+                               className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-green-500 focus:outline-none"
+                               placeholder="Ingresa tu usuario"/>
+                      </div>
+                      <div>
+                        <label className="block text-gray-700 font-medium mb-2">Contraseña</label>
+                        <input type="password" value={password} onChange={(e)=>setPassword(e.target.value)}
+                               className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-green-500 focus:outline-none"
+                               placeholder="Ingresa tu contraseña"/>
+                      </div>
+                      <div className="flex gap-4 pt-2">
+                        <button type="submit" className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition shadow">Ingresar</button>
+                        <button type="button" onClick={()=>setMostrarLogin(false)} className="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 rounded-lg transition">Cancelar</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
+
+              {/* Formulario admin */}
+              {autenticado && (
+                <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl shadow-lg p-6 mb-8 border-l-4 border-green-600">
+                  <h2 className="text-2xl font-bold text-green-800 mb-4">📝 Ingresar Resultado</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <select className="border-2 border-gray-300 rounded-lg p-2 bg-white focus:border-green-600 focus:outline-none"
+                            value={resultado.grupo}
+                            onChange={(e)=>setResultado({ ...resultado, grupo: parseInt(e.target.value) })}>
+                      <option value={1}>Grupo 1</option>
+                      <option value={2}>Grupo 2</option>
+                      <option value={3}>Grupo 3</option>
+                      <option value={4}>Grupo 4</option>
+                    </select>
+                    <select className="border-2 border-gray-300 rounded-lg p-2 bg-white focus:border-green-600 focus:outline-none"
+                            value={resultado.equipo1}
+                            onChange={(e)=>setResultado({ ...resultado, equipo1: e.target.value })}>
+                      <option value="">Equipo Local</option>
+                      {grupos[resultado.grupo].map(e => <option key={e.equipo} value={e.equipo}>{e.equipo}</option>)}
+                    </select>
+                    <input type="number" min="0" placeholder="Goles"
+                           className="border-2 border-gray-300 rounded-lg p-2 bg-white focus:border-green-600 focus:outline-none"
+                           value={resultado.goles1}
+                           onChange={(e)=>setResultado({ ...resultado, goles1: e.target.value })}/>
+                    <input type="number" min="0" placeholder="Goles"
+                           className="border-2 border-gray-300 rounded-lg p-2 bg-white focus:border-green-600 focus:outline-none"
+                           value={resultado.goles2}
+                           onChange={(e)=>setResultado({ ...resultado, goles2: e.target.value })}/>
+                    <select className="border-2 border-gray-300 rounded-lg p-2 bg-white focus:border-green-600 focus:outline-none"
+                            value={resultado.equipo2}
+                            onChange={(e)=>setResultado({ ...resultado, equipo2: e.target.value })}>
+                      <option value="">Equipo Visitante</option>
+                      {grupos[resultado.grupo].map(e => <option key={e.equipo} value={e.equipo}>{e.equipo}</option>)}
+                    </select>
+                  </div>
+                  <button onClick={agregarResultado}
+                          className="mt-4 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition shadow">✅ Agregar Resultado</button>
+                </div>
+              )}
+
+              {/* Tablas de grupos */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                {[1, 2, 3, 4].map(num => (
+                  <div key={num} className="bg-white rounded-xl shadow-lg overflow-hidden border-t-4 border-green-600">
+                    <div className="bg-gradient-to-r from-green-600 to-green-700 p-4">
+                      <h3 className="text-2xl font-bold text-white text-center">GRUPO {num}</h3>
+                    </div>
+                    <div className="p-4">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead className="bg-gray-100">
+                            <tr>
+                              <th className="p-2 text-left text-gray-700">Pos</th>
+                              <th className="p-2 text-left text-gray-700">Equipo</th>
+                              <th className="p-2 text-center text-gray-700">PJ</th>
+                              <th className="p-2 text-center text-gray-700">PG</th>
+                              <th className="p-2 text-center text-gray-700">PE</th>
+                              <th className="p-2 text-center text-gray-700">PP</th>
+                              <th className="p-2 text-center text-gray-700">GF</th>
+                              <th className="p-2 text-center text-gray-700">GC</th>
+                              <th className="p-2 text-center text-gray-700">DG</th>
+                              <th className="p-2 text-center text-gray-700 font-bold">Pts</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {grupos[num].map((equipo, idx) => (
+                              <tr key={equipo.equipo} className={idx < 2 ? 'bg-green-50 border-l-4 border-green-500' : 'hover:bg-gray-50'}>
+                                <td className="p-2 font-bold text-gray-700">{idx + 1}</td>
+                                <td className="p-2 text-sm font-medium text-gray-800">{equipo.equipo}</td>
+                                <td className="p-2 text-center text-gray-700">{equipo.pj}</td>
+                                <td className="p-2 text-center text-gray-700">{equipo.pg}</td>
+                                <td className="p-2 text-center text-gray-700">{equipo.pe}</td>
+                                <td className="p-2 text-center text-gray-700">{equipo.pp}</td>
+                                <td className="p-2 text-center text-gray-700">{equipo.gf}</td>
+                                <td className="p-2 text-center text-gray-700">{equipo.gc}</td>
+                                <td className="p-2 text-center font-semibold text-gray-800">{equipo.dg > 0 ? '+' : ''}{equipo.dg}</td>
+                                <td className="p-2 text-center font-bold text-green-700 text-lg">{equipo.pts}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Clasificados ordenados */}
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8 border-t-4 border-red-500">
+                <div className="bg-gradient-to-r from-red-500 to-red-600 p-6">
+                  <h3 className="text-3xl font-bold text-white text-center">🏆 CLASIFICADOS A CUARTOS DE FINAL</h3>
+                  <p className="text-center text-red-100 mt-2 font-medium">Ordenados por Promedio (Pts/PJ)</p>
+                </div>
+                <div className="p-6">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-100">
+                        <tr>
+                          <th className="p-3 text-left text-gray-700">Pos</th>
+                          <th className="p-3 text-left text-gray-700">Equipo</th>
+                          <th className="p-3 text-center text-gray-700">Grupo</th>
+                          <th className="p-3 text-center text-gray-700">PJ</th>
+                          <th className="p-3 text-center text-gray-700">Pts</th>
+                          <th className="p-3 text-center text-gray-700">Promedio</th>
+                          <th className="p-3 text-center text-gray-700">DG</th>
+                          <th className="p-3 text-center text-gray-700">GF</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {obtenerClasificados().map((equipo, idx) => (
+                          <tr key={idx} className={idx < 4 ? 'bg-red-50 border-l-4 border-red-500' : 'bg-yellow-50 border-l-4 border-yellow-500'}>
+                            <td className="p-3 font-bold text-lg text-gray-800">{idx + 1}</td>
+                            <td className="p-3 font-semibold text-gray-800">{equipo.equipo}</td>
+                            <td className="p-3 text-center font-bold text-gray-700">{equipo.grupo}</td>
+                            <td className="p-3 text-center text-gray-700">{equipo.pj}</td>
+                            <td className="p-3 text-center font-bold text-gray-800">{equipo.pts}</td>
+                            <td className="p-3 text-center font-bold text-red-600 text-lg">{equipo.promedio}</td>
+                            <td className="p-3 text-center text-gray-700">{equipo.dg > 0 ? '+' : ''}{equipo.dg}</td>
+                            <td className="p-3 text-center text-gray-700">{equipo.gf}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="mt-6 text-sm text-gray-600 bg-gray-50 p-4 rounded-lg">
+                    <p className="mb-1">🔴 Primeros de grupo | 🟡 Segundos de grupo</p>
+                    <p>* Criterios: Promedio (Pts/PJ), Diferencia de Gol, Goles a Favor</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Cruces de cuartos */}
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border-t-4 border-green-600">
+                <div className="bg-gradient-to-r from-green-600 to-green-700 p-6">
+                  <h3 className="text-3xl font-bold text-white text-center">⚔️ CRUCES DE CUARTOS DE FINAL</h3>
+                </div>
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {obtenerCrucesCuartos().map(cruce => (
+                      <div key={cruce.partido} className="border-2 border-gray-200 rounded-lg p-5 bg-gradient-to-br from-gray-50 to-white shadow hover:shadow-lg transition">
+                        <h4 className="font-bold text-xl text-center mb-4 bg-gradient-to-r from-green-600 to-red-600 text-white py-2 rounded-lg">
+                          PARTIDO {cruce.partido}
+                        </h4>
+                        <div className="space-y-3">
+                          <div className="bg-white p-3 rounded-lg border-l-4 border-green-600 shadow-sm">
+                            <span className="font-bold text-green-700 text-base">{cruce.equipo1.equipo}</span>
+                            <div className="text-xs text-gray-600 mt-1">
+                              Grupo {cruce.equipo1.grupo} • Promedio: {cruce.equipo1.promedio}
+                            </div>
+                          </div>
+                          <div className="text-center font-bold text-xl text-gray-400">VS</div>
+                          <div className="bg-white p-3 rounded-lg border-l-4 border-red-600 shadow-sm">
+                            <span className="font-bold text-red-700 text-base">{cruce.equipo2.equipo}</span>
+                            <div className="text-xs text-gray-600 mt-1">
+                              Grupo {cruce.equipo2.grupo} • Promedio: {cruce.equipo2.promedio}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        );
+      }
+
+      ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+  </body>
+</html>
